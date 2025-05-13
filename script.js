@@ -1,61 +1,101 @@
-// Theme toggle
-const toggle = document.getElementById("themeToggle");
-toggle.addEventListener("click", () => {
-  document.body.classList.toggle("dark-mode");
-  toggle.textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
-});
+const apiKey = '07c4895d180d296e163e437a2f55b175'; // your API key here
 
-// Autocomplete
-const cityInput = document.getElementById("cityInput");
-const suggestions = document.getElementById("suggestions");
+const cityInput = document.getElementById('cityInput');
+const searchBtn = document.getElementById('searchBtn');
 
-cityInput.addEventListener("input", () => {
-  const input = cityInput.value.toLowerCase();
-  suggestions.innerHTML = "";
+const cityName = document.getElementById('cityName');
+const currentDate = document.getElementById('currentDate');
+const temp = document.getElementById('temp');
+const feelsLike = document.getElementById('feelsLike');
+const humidity = document.getElementById('humidity');
+const wind = document.getElementById('wind');
+const pressure = document.getElementById('pressure');
+const visibility = document.getElementById('visibility');
+const forecastGrid = document.getElementById('forecastGrid');
+const toggleNight = document.getElementById('toggleNight');
 
-  if (input.length === 0) return;
+async function fetchWeather(city) {
+  try {
+    const currentRes = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`);
+    const currentData = await currentRes.json();
 
-  const filteredCities = cities.filter(city =>
-    city.toLowerCase().startsWith(input)
-  );
+    if (currentData.cod !== 200) {
+      alert('City not found! Please try again.');
+      return;
+    }
 
-  filteredCities.forEach(city => {
-    const li = document.createElement("li");
-    li.textContent = city;
-    li.addEventListener("click", () => {
-      cityInput.value = city;
-      suggestions.innerHTML = "";
-    });
-    suggestions.appendChild(li);
+    updateCurrentUI(currentData);
+
+    const forecastRes = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${apiKey}`);
+    const forecastData = await forecastRes.json();
+
+    updateForecastUI(forecastData);
+
+  } catch (error) {
+    alert('Error fetching data. Check your internet or API key.');
+  }
+}
+
+function updateCurrentUI(data) {
+  currentDate.textContent = new Date().toDateString();
+  temp.textContent = `${Math.round(data.main.temp)}°C`;
+  feelsLike.textContent = `Feels like ${Math.round(data.main.feels_like)}°C`;
+  humidity.textContent = `${data.main.humidity}%`;
+  wind.textContent = `${data.wind.speed} km/h`;
+  pressure.textContent = `${data.main.pressure} hPa`;
+  visibility.textContent = `${(data.visibility / 1000).toFixed(1)} km`;
+
+  changeBackground(data.weather[0].main);
+}
+
+function updateForecastUI(data) {
+  forecastGrid.innerHTML = '';
+
+  const daily = {};
+
+  data.list.forEach(item => {
+    const date = item.dt_txt.split(' ')[0];
+    if (!daily[date]) {
+      daily[date] = item;
+    }
   });
+
+  const dates = Object.keys(daily).slice(0, 5); // Next 5 days
+
+  dates.forEach(date => {
+    const weather = daily[date];
+    const div = document.createElement('div');
+    div.classList.add('forecast-day');
+    div.innerHTML = `
+      <p>${new Date(weather.dt_txt).toLocaleDateString('en-GB', { weekday: 'short' })}</p>
+      <img src="https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png" alt="icon">
+      <p>${Math.round(weather.main.temp_min)}° / ${Math.round(weather.main.temp_max)}°</p>
+    `;
+    forecastGrid.appendChild(div);
+  });
+}
+
+function changeBackground(condition) {
+  if (condition === 'Clear') {
+    document.body.style.backgroundImage = "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?fit=crop&w=1920&q=80')";
+  } else if (condition === 'Clouds') {
+    document.body.style.backgroundImage = "url('https://images.unsplash.com/photo-1502082553048-f009c37129b9?fit=crop&w=1920&q=80')";
+  } else if (condition === 'Rain') {
+    document.body.style.backgroundImage = "url('https://images.unsplash.com/photo-1527766833261-b09c3163a791?fit=crop&w=1920&q=80')";
+  } else if (condition === 'Snow') {
+    document.body.style.backgroundImage = "url('https://images.unsplash.com/photo-1608889175657-294b69ecf3a5?fit=crop&w=1920&q=80')";
+  } else if (condition === 'Thunderstorm') {
+    document.body.style.backgroundImage = "url('https://images.unsplash.com/photo-1595433707802-9bba3fa9a7c1?fit=crop&w=1920&q=80')";
+  } else {
+    document.body.style.backgroundImage = "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?fit=crop&w=1920&q=80')";
+  }
+}
+
+searchBtn.addEventListener('click', () => {
+  const city = cityInput.value.trim();
+  if (city) fetchWeather(city);
 });
 
-// Weather Fetch
-document.getElementById("searchBtn").addEventListener("click", () => {
-  const city = cityInput.value;
-  const apiKey = "07c4895d180d296e163e437a2f55b175";
-
-  if (!city) return alert("Please enter a city!");
-
-  fetch(
-    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
-  )
-    .then(res => res.json())
-    .then(data => {
-      if (data.cod !== 200) {
-        alert("City not found!");
-        return;
-      }
-
-      document.getElementById("weatherCard").classList.remove("hidden");
-      document.getElementById("cityName").textContent = `📍 ${data.name}`;
-      document.getElementById("weatherDesc").textContent = `☁️ ${data.weather[0].description}`;
-      document.getElementById("temperature").textContent = `🌡️ Temp: ${data.main.temp}°C`;
-      document.getElementById("humidity").textContent = `💧 Humidity: ${data.main.humidity}%`;
-      document.getElementById("windSpeed").textContent = `💨 Wind: ${data.wind.speed} m/s`;
-    })
-    .catch(error => {
-      console.error("Error:", error);
-      alert("Something went wrong. Try again!");
-    });
+toggleNight.addEventListener('click', () => {
+  document.body.classList.toggle('night');
 });
