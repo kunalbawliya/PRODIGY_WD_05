@@ -1,0 +1,135 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #89f7fe, #66a6ff);
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  transition: all 0.4s ease;
+}
+
+.container {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  backdrop-filter: blur(6px);
+  width: 90%;
+  max-width: 400px;
+}
+
+.theme-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.heading {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+.search-section {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+#cityInput {
+  padding: 10px;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+#suggestions {
+  list-style: none;
+  position: absolute;
+  background: #fff;
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 10;
+}
+
+#suggestions li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+#suggestions li:hover {
+  background-color: #eee;
+}
+
+#searchBtn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  font-weight: bold;
+  border: none;
+  background-color: #66a6ff;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#searchBtn:hover {
+  background-color: #559be9;
+}
+
+.weather-card {
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  animation: fadeIn 0.5s ease;
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Dark Theme */
+.dark-mode {
+  background: #1e1e2f;
+  color: #f1f1f1;
+}
+
+.dark-mode .container {
+  background: rgba(42, 42, 61, 0.85);
+  color: #f1f1f1;
+}
+
+.dark-mode #cityInput,
+.dark-mode #suggestions {
+  background-color: #2a2a3d;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+.dark-mode #suggestions li:hover {
+  background-color: #444;
+}
+
+.dark-mode #searchBtn {
+  background-color: #444;
+}
